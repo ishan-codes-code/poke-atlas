@@ -1,24 +1,39 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { PokeListProvider } from "@/src/context/PokeListContext";
+import useTheme, { ThemeProvider } from "@/src/context/ThemeContext";
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider as DefaultThemeProvider
+} from "@react-navigation/native";
+import { Stack } from "expo-router";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
+    <ThemeProvider>
+      <PokeListProvider>
+        <AppStack />
+      </PokeListProvider>
     </ThemeProvider>
+  );
+}
+
+function AppStack() {
+  const { isDarkMode, colors } = useTheme();
+
+  const theme = isDarkMode ? DarkTheme : DefaultTheme;
+  return (
+    <DefaultThemeProvider value={theme}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: "fade",        // smoothest for theme/dark
+          animationDuration: 200,
+          contentStyle: { backgroundColor: colors.background },
+        }}
+      />
+
+    </DefaultThemeProvider>
   );
 }

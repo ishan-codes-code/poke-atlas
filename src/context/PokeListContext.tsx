@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { PokemonExploreDetails } from "../types/pokemon";
 import { getIdFromUrl, getImageUrl } from "../utils/masonryUtils";
 
 
@@ -7,6 +8,15 @@ export interface PokemonListType {
     name: string;
     image: string;
 }
+
+interface PokeContextType {
+    pokemonList: PokemonListType[];
+    typeCache: Record<string, PokemonListType[]>;
+    setTypeCache: React.Dispatch<React.SetStateAction<Record<string, PokemonListType[]>>>;
+    detailsCache: Record<number, PokemonExploreDetails>;
+    setDetailsCache: React.Dispatch<React.SetStateAction<Record<number, PokemonExploreDetails>>>;
+}
+
 
 const fetchPokeList = async (): Promise<PokemonListType[]> => {
 
@@ -27,11 +37,15 @@ const fetchPokeList = async (): Promise<PokemonListType[]> => {
     )
 }
 
-const PokeListContext = createContext<PokemonListType[] | undefined>(undefined)
+const PokeListContext = createContext<PokeContextType | undefined>(undefined);
 
 export const PokeListProvider = ({ children }: { children: ReactNode }) => {
 
     const [pokemonList, setPokemonList] = useState<PokemonListType[]>([])
+    const [typeCache, setTypeCache] = useState<Record<string, PokemonListType[]>>({});
+    const [detailsCache, setDetailsCache] = useState<Record<number, PokemonExploreDetails>>({});
+
+
 
     useEffect(() => {
         const loadPokemonList = async () => {
@@ -43,7 +57,13 @@ export const PokeListProvider = ({ children }: { children: ReactNode }) => {
 
 
     return (
-        <PokeListContext.Provider value={pokemonList}>
+        <PokeListContext.Provider value={{
+            pokemonList,
+            typeCache,
+            setTypeCache,
+            detailsCache,
+            setDetailsCache,
+        }}>
             {children}
         </PokeListContext.Provider>
 

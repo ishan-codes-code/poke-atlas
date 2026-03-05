@@ -3,16 +3,12 @@ import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator } from "react-native";
 import usePokemonList, { PokemonListType } from "../context/PokeListContext";
-import { fetchPokemonDetailsPage, getPokemonByType } from "../utils/masonryUtils";
+import { usePokemonByType } from "../hooks/usePokemonByType";
+import { PokemonExploreDetails } from "../types/pokemon";
+import { fetchPokemonDetailsPage } from "../utils/masonryUtils";
 import PokemonCard from "./ui/PokemonCard";
 
-export interface PokemonExploreDetails {
-    id: number;
-    types: string[];
-    totalStats?: number;
-    baseExperience?: number;
-    abilities?: string[];
-}
+
 
 const LIMIT = 20;
 
@@ -23,7 +19,7 @@ export default function PokeMasonry() {
     const { type } = useLocalSearchParams();
     const selectedType = Array.isArray(type) ? type[0] : type;
 
-    const pokemonList = usePokemonList();
+    const { pokemonList, detailsCache, setDetailsCache, } = usePokemonList();
 
     const sourceRef = useRef<PokemonListType[]>([]);
     const offsetRef = useRef(0);
@@ -32,18 +28,51 @@ export default function PokeMasonry() {
 
     const [detailsMap, setDetailsMap] = useState<Record<number, PokemonExploreDetails>>({});
 
+    const { getPokemonByType } = usePokemonByType();
+
     const runDetails = async (nextPage: PokemonListType[]) => {
         await new Promise((resolve) => setTimeout(resolve, 0));
 
-        const ids = nextPage.map((p) => p.id);
-        const detailed = await fetchPokemonDetailsPage(ids);
+        const cachedDetails: PokemonExploreDetails[] = [];
+        const missingIds: number[] = [];
+
+        for (const p of nextPage) {
+            const cached = detailsCache[p.id];
+
+            if (cached !== undefined) {
+                cachedDetails.push(cached);
+            } else {
+                missingIds.push(p.id);
+            }
+        }
+
+
+
+        let missingDetails: PokemonExploreDetails[] = [];
+
+        if (missingIds.length > 0) {
+            missingDetails = await fetchPokemonDetailsPage(missingIds);
+        }
+
+        const allDetails = [...cachedDetails, ...missingDetails];
 
         const map: Record<number, PokemonExploreDetails> = {};
-        detailed.forEach((d) => {
+        allDetails.forEach((d) => {
             map[d.id] = d;
         });
 
         setDetailsMap((prev) => ({ ...prev, ...map }));
+
+        setDetailsCache((prev) => {
+            const map = { ...prev };
+
+            missingDetails.forEach((d) => {
+                map[d.id] = d;
+            });
+
+            return map;
+        });
+
     };
 
     const loadMore = async (fromOffset?: number) => {

@@ -1,10 +1,10 @@
 import { PokemonListType } from "@/src/context/PokeListContext";
 import useTheme from "@/src/context/ThemeContext";
+import { PokemonExploreDetails } from "@/src/types/pokemon";
 import { LinearGradient } from "expo-linear-gradient";
 import { Skeleton } from "moti/skeleton";
 import React from "react";
 import { Dimensions, Image, Text, TouchableOpacity, View } from "react-native";
-import { PokemonExploreDetails } from "../Masonry";
 
 type Props = {
     pokemon: PokemonListType;

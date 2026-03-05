@@ -44,3 +44,11 @@ export type Pokemon = PokemonListItem & {
   genderRate?: number;
   evolutionChainUrl?: string;
 };
+
+export interface PokemonExploreDetails {
+  id: number;
+  types: string[];
+  totalStats?: number;
+  baseExperience?: number;
+  abilities?: string[];
+}

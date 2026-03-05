@@ -1,18 +1,19 @@
-import { PokemonExploreDetails } from "../components/Masonry";
-import { PokemonListType } from "../context/PokeListContext";
+import { PokemonExploreDetails } from "../types/pokemon";
 
 export const getIdFromUrl = (url: string) => {
   const parts = url.split("/");
   return Number(parts[parts.length - 2]);
 };
 
-export const getImageUrl = (id: Number) => {
+export const getImageUrl = (id: number) => {
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
 };
 
 export const fetchPokemonDetailsPage = async (
-  ids: Number[],
+  ids: number[],
 ): Promise<PokemonExploreDetails[]> => {
+  console.log(ids.length);
+
   const detailed = await Promise.all(
     ids.map(async (id) => {
       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
@@ -32,17 +33,4 @@ export const fetchPokemonDetailsPage = async (
   );
 
   return detailed;
-};
-
-export const getPokemonByType = async (
-  type: string,
-): Promise<PokemonListType[]> => {
-  const res = await fetch(`https://pokeapi.co/api/v2/type/${type}`);
-  const data = await res.json();
-
-  return data.pokemon.map((p: any) => ({
-    id: getIdFromUrl(p.pokemon.url),
-    name: p.pokemon.name,
-    image: getImageUrl(getIdFromUrl(p.pokemon.url)),
-  }));
 };

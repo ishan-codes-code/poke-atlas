@@ -25,12 +25,23 @@ export const TypeList = ({ selected, setSelected }: Props) => {
                 flexWrap: "wrap",
                 gap: 10,
             }}>
-                {typeIcons.map((t) => {
-                    const isSelected = selected.type === t.type;
+                {typeIcons.map((t, i) => {
+                    const isSelected = selected.type?.includes(t.type);
 
                     return (
                         <AnimatedPressable key={t.type}
-                            onPress={() => setSelected({ type: t.type })}
+                            onPress={() => setSelected(prev => {
+                                const prevTypes = Array.isArray(prev.type)
+                                    ? prev.type
+                                    : prev.type ? [prev.type] : [];
+
+                                return {
+                                    ...prev,
+                                    type: prevTypes.includes(t.type)
+                                        ? prevTypes.filter(tName => tName !== t.type)
+                                        : [...prevTypes, t.type]
+                                };
+                            })}
                             pressableStyles={{
                                 width: "47%"
 

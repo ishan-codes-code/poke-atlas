@@ -5,10 +5,12 @@ import { ActivityIndicator } from "react-native";
 import usePokemonList, { PokemonListType } from "../context/PokeListContext";
 import { usePokemonByType } from "../hooks/usePokemonByType";
 import { PokemonExploreDetails } from "../types/pokemon";
-import { fetchPokemonDetailsPage } from "../utils/masonryUtils";
+import { fetchPokemonDetailsPage, getCommonPoke } from "../utils/masonryUtils";
 import PokemonCard from "./ui/PokemonCard";
 
-
+interface SelectedPokeTypeTypes {
+    [key: string]: PokemonListType[];
+}
 
 const LIMIT = 20;
 
@@ -17,6 +19,7 @@ export default function PokeMasonry() {
     const [loading, setLoading] = useState(false);
 
     const { type } = useLocalSearchParams();
+
     const selectedType = Array.isArray(type) ? type[0] : type;
 
     const { pokemonList, detailsCache, setDetailsCache, } = usePokemonList();
@@ -102,6 +105,9 @@ export default function PokeMasonry() {
         let active = true;
 
         const init = async () => {
+            // Guard against empty or invalid type search param
+            const hasType = Array.isArray(type) ? type.length > 0 : !!type && type !== "";
+
             setPokemon([]);
             setDetailsMap({});
             offsetRef.current = 0;
@@ -110,8 +116,13 @@ export default function PokeMasonry() {
             setLoading(true);
 
             let source: PokemonListType[] = [];
-            if (selectedType) {
-                source = await getPokemonByType(selectedType);
+            if (hasType) {
+                const typesArray = Array.isArray(type) ? type : [type];
+                const results = await Promise.all(
+                    typesArray.map((t) => getPokemonByType(t))
+                );
+
+                source = getCommonPoke(results);
             } else {
                 source = pokemonList;
             }
@@ -138,7 +149,7 @@ export default function PokeMasonry() {
         return () => {
             active = false;
         };
-    }, [selectedType, pokemonList]);
+    }, [JSON.stringify(type), pokemonList]);
 
     return (
         <FlashList

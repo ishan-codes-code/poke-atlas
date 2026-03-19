@@ -13,24 +13,29 @@ export default function FilterBar() {
 
     if (!type) return null
 
+    const types = Array.isArray(type) ? type : [type]
+
     return (
         <ScrollView horizontal style={{ flexGrow: 0, marginTop: 10 }}>
-            {type && <View style={{
-                flexDirection: "row",
-                alignItems: "center",
-                borderRadius: 24,
-                gap: 10,
-                padding: 10,
-                backgroundColor: colors.card,
-                marginHorizontal: 5
-            }}>
-                <Text style={{ fontSize: 16, color: colors.textPrimary }}>Type: <Text style={{ fontSize: 16, textTransform: "capitalize", fontWeight: "700", color: colors.types[type as keyof typeof colors.types] }} >{type}</Text></Text>
-                <AnimatedPressable onPress={() => router.setParams({ type: undefined })}>
-                    <Ionicons name="close" size={20} color={colors.textPrimary} />
-
-                </AnimatedPressable>
-            </View>}
-
+            {types.map((t) => (
+                <View key={t} style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    borderRadius: 24,
+                    gap: 10,
+                    padding: 10,
+                    backgroundColor: colors.card,
+                    marginHorizontal: 5
+                }}>
+                    <Text style={{ fontSize: 16, color: colors.textPrimary }}>Type: <Text style={{ fontSize: 16, textTransform: "capitalize", fontWeight: "700", color: colors.types[t as keyof typeof colors.types] }} >{t}</Text></Text>
+                    <AnimatedPressable onPress={() => {
+                        const newTypes = types.filter(existing => existing !== t)
+                        router.setParams({ type: newTypes.length > 0 ? newTypes : "" })
+                    }}>
+                        <Ionicons name="close" size={20} color={colors.textPrimary} />
+                    </AnimatedPressable>
+                </View>
+            ))}
         </ScrollView>
     )
 }

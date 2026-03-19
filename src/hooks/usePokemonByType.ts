@@ -14,6 +14,11 @@ export const usePokemonByType = () => {
     const res = await fetch(`https://pokeapi.co/api/v2/type/${type}`);
     const data = await res.json();
 
+    if (!data.pokemon) {
+      console.warn(`No pokemon found for type: ${type}`);
+      return [];
+    }
+
     const fetchedTypeData: PokemonListType[] = data.pokemon.map((p: any) => {
       const id = getIdFromUrl(p.pokemon.url);
 

@@ -1,12 +1,12 @@
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Modal, Text, View } from 'react-native'
 import useTheme from '../context/ThemeContext'
 import AnimatedPressable from './ui/AnimatedPressable'
 import { TypeList } from './ui/FilterList'
 
 export type ApplyProperty = {
-    type?: string | string[];
+    type?: string[];
 };
 
 
@@ -21,15 +21,18 @@ const FilterSheet = () => {
 
 
     const { colors } = useTheme()
+    useEffect(() => {
+
+        if (!params.type) {
+            if (applyProperty.type) setApplyProperty({});
+        } else {
+            setApplyProperty({
+                type: Array.isArray(params.type) ? params.type : [params.type]
+            });
+        }
+    }, [JSON.stringify(params.type)]);
 
 
-    // useEffect(() => {
-    //     setApplyProperty({ type: selectedType })
-
-
-    // }, [selectedType])
-
-    // console.log(applyProperty)
 
     return (
         <Modal
@@ -124,38 +127,13 @@ const FilterSheet = () => {
                                         Types
                                     </Text>
                                     {applyProperty.type && <Text style={{ fontSize: 18, color: colors.textPrimary }}>
-                                        1
+                                        {applyProperty.type.length}
                                     </Text>}
 
                                 </View>
                             </AnimatedPressable>
 
-                            <AnimatedPressable onPress={() => setFilterProperty("ability")}
-                                viewStyles={{
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    padding: 14,
 
-
-                                    borderRadius: 14,
-                                    backgroundColor: colors.card,
-
-                                    // shadow
-                                    shadowColor: "#000",
-                                    shadowOpacity: 0.05,
-                                    shadowRadius: 10,
-                                    shadowOffset: { width: 0, height: 4 },
-                                    elevation: 3,
-                                }}>
-                                <View style={{
-                                    width: 4,
-                                    height: "100%",
-                                    borderRadius: 4,
-                                    backgroundColor: colors.textDisabled,
-                                    marginRight: 10,
-                                }} />
-                                <Text style={{ fontSize: 18, color: colors.textPrimary, }}>Abilities</Text>
-                            </AnimatedPressable>
 
 
 

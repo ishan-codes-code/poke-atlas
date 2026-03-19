@@ -1,3 +1,4 @@
+import { PokemonListType } from "../context/PokeListContext";
 import { PokemonExploreDetails } from "../types/pokemon";
 
 export const getIdFromUrl = (url: string) => {
@@ -12,7 +13,7 @@ export const getImageUrl = (id: number) => {
 export const fetchPokemonDetailsPage = async (
   ids: number[],
 ): Promise<PokemonExploreDetails[]> => {
-  console.log(ids.length);
+  // console.log(ids.length);
 
   const detailed = await Promise.all(
     ids.map(async (id) => {
@@ -34,3 +35,13 @@ export const fetchPokemonDetailsPage = async (
 
   return detailed;
 };
+
+
+export function getCommonPoke(results: PokemonListType[][]): PokemonListType[] {
+  if (!results?.length) return [];
+  if (results.length === 1) return results[0];
+
+  return results.reduce((acc, curr) =>
+    acc.filter(a => curr.some(c => c.id === a.id))
+  );
+}
